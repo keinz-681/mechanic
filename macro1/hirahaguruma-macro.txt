@@ -1,0 +1,78 @@
+'平歯車作成ツールbyケインズ
+
+Dim swApp As Object
+Dim Part As Object
+Dim boolstatus As Boolean
+Dim longstatus As Long, longwarnings As Long
+
+Sub main()
+Set swApp = Application.SldWorks
+
+Set Part = swApp.ActiveDoc
+Dim myModelView As Object
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+
+
+Dim module, Hasuu, deg As Single
+module = InputBox("モジュールを問ふ")
+Hasuu = InputBox("歯数を問ふ")
+deg = InputBox("圧力角を問ふ")
+
+Dim kijyun As Double
+
+kijyun = module * Hasuu 
+
+Dim hatei As Double 
+
+hatei = kijyun - (module * 2.5)
+
+hatei = hatei / 1000 
+Dim hasaki As Double 
+hasaki = kijyun + (module * 2) 
+hasaki = hasaki / 1000 
+
+Dim skSegment As Object 
+Set skSegment = Part.SketchManager.CreateCircle(0#, 0#, 0#, hasaki / 2, 0#, 0#) 
+
+Part.ShowNamedView2 "*正面", 1
+Part.ViewZoomtofit2
+Dim myFeature As Object
+Set myFeature = Part.FeatureManager.FeatureExtrusion2(True, False, False, 0, 0, 0.01, 0.01, False, False, False, False, 1.74532925199433E-02, 1.74532925199433E-02, False, False, False, False, True, True, True, 0, 0, False)
+Part.SelectionManager.EnableContourSelection = False
+Part.ShowNamedView2 "*正面", 1
+
+Part.SketchManager.InsertSketch True 
+
+Set skSegment = Part.SketchManager.CreateCircle(0#, 0#, 0#, hatei / 2, 0#, 0#) 
+kijyun = kijyun / 1000 
+Set skSegment = Part.SketchManager.CreateCircle(0#, 0#, 0#, kijyun / 2, 0#, 0#) 
+Set skSegment = Part.SketchManager.CreateCircle(0#, 0#, 0#, hasaki / 2, 0#, 0#) 
+
+Dim pi As Double 
+pi = 4 * Atn(1) 
+Dim hatake As Single
+hatake = 2 * module 
+hatake = hatake / 1000 
+Dim hasakin As Single
+hasakin = hasaki / 2 
+
+Set skSegment = Part.SketchManager.CreateCircle(0#, 0#, 0#, hasakin - hatake, 0#, 0#) 
+
+Part.ClearSelection2 True
+Dim koi As Double
+koi = hasakin - hatake
+koi = koi * 1000
+
+Dim tintin As Variant
+tintin = InputBox("これを入力してください。" & koi * 2)
+
+Dim equationDriveCurve As Object
+Set equationDriveCurve = Part.SketchManager.CreateEquationSpline2(tintin + "/2*sqr(t^2+1)*cos(t-atn(t))", tintin + "/2*sqr(t^2+1)*sin(t-atn(t))", "", "0", "1", False, 0, 0, 0, True, True)
+
+
+Set skSegment = Part.SketchManager.CreateLine(0#, 0#, 0#, tintin / 2000, 0#, 0#)
+'Set skSegment = Part.SketchManager.CreateLine(0#, 0#, 0#, 1, 1, 0#)
+
+End Sub
+
